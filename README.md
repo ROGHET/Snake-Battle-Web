@@ -10,22 +10,6 @@ A **production-ready real-time multiplayer Snake game** built using **JavaScript
 
 ---
 
-## 📸 Screenshots
-
-### 🎮 Gameplay
-![Gameplay](screenshots/Local-play-Screen.png)
-
-### 🌐 Multiplayer
-![Multiplayer](screenshots/Online-Screen.png)
-
-### 📱 Mobile Controls
-![Mobile](screenshots/Mobile-ingame.png)
-
-### 🏠 Menu
-![Menu](screenshots/Title-Screen.png)
-
----
-
 ## 🎮 Features
 
 ### 🌐 Multiplayer System
@@ -102,6 +86,22 @@ Each power-up lasts for a limited duration and affects gameplay dynamically.
 * Collision detection and damage system
 * State management across clients
 * Matchmaking and room management
+
+---
+
+## 📸 Screenshots
+
+### 🎮 Gameplay
+![Gameplay](screenshots/Local-play-Screen.png)
+
+### 🌐 Multiplayer
+![Multiplayer](screenshots/Online-Screen.png)
+
+### 📱 Mobile Controls
+![Mobile](screenshots/Mobile-ingame.png)
+
+### 🏠 Menu
+![Menu](screenshots/Title-Screen.png)
 
 ---
 
