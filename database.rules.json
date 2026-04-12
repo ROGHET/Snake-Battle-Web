@@ -1,0 +1,14 @@
+{
+  "rules": {
+    "rooms": {
+      ".read": true,
+      ".write": true,
+      ".indexOn": ["status", "roomType"]
+    },
+    "leaderboard": {
+      ".read": true,
+      ".write": true,
+      ".indexOn": ["score"]
+    }
+  }
+}

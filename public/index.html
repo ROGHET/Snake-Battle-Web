@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Snake Battle Online</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="description" content="Snake Battle Online — Multiplayer snake game. Play against AI, friends locally, or challenge opponents online.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect x='2' y='2' width='12' height='12' rx='3' fill='%2300ff88'/></svg>">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --green: #00ff88;
+  --green-dim: #009955;
+  --red: #ff4466;
+  --red-dim: #aa1133;
+  --cyan: #00e5ff;
+  --gold: #ffcc00;
+  --bg: #06060f;
+  --panel: #0d0d1a;
+  --border: #1a1a33;
+}
+
+html, body {
+  background: var(--bg);
+  color: #e0e0e0;
+  font-family: 'Share Tech Mono', monospace;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px;
+  gap: 14px;
+}
+
+/* ── TITLE ──────────────────────────────────── */
+#titleLink {
+  text-decoration: none;
+  color: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+h1 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: clamp(1.5rem, 5vw, 2.6rem);
+  font-weight: 900;
+  background: linear-gradient(90deg, var(--green), var(--cyan), var(--green));
+  background-size: 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 3s linear infinite;
+  letter-spacing: 2px;
+  text-align: center;
+}
+@keyframes shimmer { 0%{background-position:0%} 100%{background-position:200%} }
+
+/* ── SOUND CONTROLS ─────────────────────────── */
+#soundControls {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  gap: 6px;
+  z-index: 100;
+}
+#soundControls button {
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  color: var(--cyan);
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  padding: 0;
+}
+#soundControls button:hover { border-color: var(--cyan); }
+#soundControls button.muted { color: #333; border-color: #1a1a1a; }
+#soundControls button svg { width: 18px; height: 18px; }
+
+/* ── MENU ───────────────────────────────────── */
+#menu {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 440px;
+}
+.input-row {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+input {
+  flex: 1;
+  padding: 10px 14px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  color: white;
+  border-radius: 6px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+input:focus { border-color: var(--cyan); }
+input::placeholder { color: #444; }
+
+/* ── BUTTONS ────────────────────────────────── */
+.btn-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  width: 100%;
+}
+.btn-wide { grid-column: span 2; }
+.btn {
+  padding: 11px 14px;
+  border: 1px solid var(--cyan);
+  background: transparent;
+  color: #e0e0e0;
+  cursor: pointer;
+  border-radius: 8px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 13px;
+  font-weight: bold;
+  transition: all 0.18s;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.btn svg {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+}
+.btn:hover {
+  background: var(--cyan);
+  color: #000;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 18px rgba(0,229,255,0.3);
+}
+.btn:active { transform: translateY(0); }
+.btn-green { border-color: var(--green); }
+.btn-green:hover { background: var(--green); box-shadow: 0 4px 18px rgba(0,255,136,0.3); }
+.btn-local { border-color: var(--gold); color: var(--gold); }
+.btn-local:hover { background: var(--gold); color: #000; box-shadow: 0 4px 18px rgba(255,204,0,0.3); }
+.btn-info {
+  border-color: #555;
+  color: #888;
+  padding: 8px 20px;
+  font-size: 12px;
+  width: auto;
+}
+.btn-info:hover { border-color: var(--cyan); color: white; background: transparent; box-shadow: none; }
+
+/* ── ROOM DISPLAY ───────────────────────────── */
+#roomDisplay {
+  display: none;
+  background: #001a1a;
+  border: 1px solid var(--cyan);
+  padding: 12px 18px;
+  border-radius: 8px;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.1em;
+  letter-spacing: 3px;
+  color: var(--cyan);
+  width: 100%;
+  text-align: center;
+  animation: pulse-border 2s ease-in-out infinite;
+}
+@keyframes pulse-border {
+  0%,100%{ box-shadow: 0 0 8px rgba(0,229,255,0.3) }
+  50%{ box-shadow: 0 0 18px rgba(0,229,255,0.7) }
+}
+
+/* ── STATUS ─────────────────────────────────── */
+#statusMsg {
+  display: none;
+  color: #888;
+  font-size: 13px;
+  text-align: center;
+  padding: 6px;
+  animation: blink 1.2s step-end infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+/* ── GAME AREA ──────────────────────────────── */
+#gameArea {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+#gameStatus {
+  display: none;
+  color: var(--cyan);
+  font-size: 13px;
+  text-align: center;
+}
+
+/* ── CANVAS ─────────────────────────────────── */
+canvas {
+  border: 1px solid rgba(0,229,255,0.25);
+  border-radius: 6px;
+  display: block;
+  max-width: 100%;
+  height: auto;
+  box-shadow: 0 0 40px rgba(0,255,136,0.08), 0 0 80px rgba(0,0,0,0.8);
+}
+
+/* ── PLAYER LEGEND ──────────────────────────── */
+#playerLegend {
+  display: none;
+  justify-content: center;
+  gap: 24px;
+  padding: 8px 16px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 13px;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #aaa;
+}
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+/* ── PC CONTROLS INFO ───────────────────────── */
+#pcControlsInfo {
+  display: none;
+  gap: 24px;
+  font-size: 13px;
+  color: #555;
+  background: var(--panel);
+  padding: 8px 20px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  align-items: center;
+}
+.ctrl-p1 { color: var(--green); }
+.ctrl-p2 { color: var(--red); }
+.ctrl-sep { color: #2a2a2a; }
+
+/* ── MOBILE DPAD ────────────────────────────── */
+#mobileControlsSingle,
+#mobileControlsLocal {
+  display: none;
+  width: 100%;
+  max-width: 600px;
+  justify-content: space-around;
+  gap: 20px;
+  padding: 8px 0;
+}
+#mobileControlsSingle { justify-content: center; }
+.dpad-wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.dpad-label {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+.lp1 { color: var(--green); }
+.lp2 { color: var(--red); }
+.dpad {
+  display: grid;
+  grid-template-columns: repeat(3, 48px);
+  grid-template-rows: repeat(3, 48px);
+  gap: 3px;
+}
+.dp {
+  width: 48px; height: 48px;
+  border: 1px solid;
+  background: rgba(255,255,255,0.03);
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.1s, transform 0.1s;
+}
+.dp:active { transform: scale(0.9); }
+.dp.p1 { border-color: rgba(0,255,136,0.4); }
+.dp.p1:active { background: rgba(0,255,136,0.2); }
+.dp.p2 { border-color: rgba(255,68,102,0.4); }
+.dp.p2:active { background: rgba(255,68,102,0.2); }
+
+/* ── MODALS ─────────────────────────────────── */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.88);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.modal {
+  background: var(--panel);
+  border: 1px solid var(--cyan);
+  border-radius: 14px;
+  padding: 28px 24px;
+  text-align: center;
+  width: 290px;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 0 40px rgba(0,229,255,0.2);
+}
+.modal-wide {
+  width: 380px;
+  max-width: 95vw;
+  text-align: left;
+}
+.modal h2 {
+  font-family: 'Orbitron', sans-serif;
+  color: var(--cyan);
+  margin-bottom: 20px;
+  font-size: 1.05em;
+  text-align: center;
+}
+.modal-btns { display: flex; flex-direction: column; gap: 10px; }
+.diff-btn {
+  padding: 12px;
+  border: 1px solid;
+  background: transparent;
+  color: white;
+  cursor: pointer;
+  border-radius: 8px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 15px;
+  font-weight: bold;
+  transition: all 0.18s;
+}
+.diff-easy { border-color: var(--green); color: var(--green); }
+.diff-easy:hover { background: var(--green); color: #000; }
+.diff-medium { border-color: var(--gold); color: var(--gold); }
+.diff-medium:hover { background: var(--gold); color: #000; }
+.diff-hard { border-color: var(--red); color: var(--red); }
+.diff-hard:hover { background: var(--red); color: #000; }
+
+/* ── RULES CONTENT ──────────────────────────── */
+.rules-section { margin-bottom: 16px; }
+.rules-section h3 {
+  color: var(--cyan);
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.8em;
+  margin-bottom: 8px;
+  letter-spacing: 1px;
+}
+.rules-section p {
+  color: #999;
+  font-size: 12px;
+  line-height: 1.6;
+  margin-bottom: 2px;
+}
+.rules-section p strong { color: #ccc; }
+
+/* ── TOAST NOTIFICATIONS ────────────────────── */
+#toastContainer {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 300;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+.toast {
+  background: rgba(13,13,26,0.95);
+  border: 1px solid var(--cyan);
+  border-radius: 8px;
+  padding: 10px 16px;
+  color: var(--cyan);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px;
+  transform: translateX(120%);
+  transition: transform 0.4s ease;
+  box-shadow: 0 4px 20px rgba(0,229,255,0.15);
+  white-space: nowrap;
+}
+.toast.show { transform: translateX(0); }
+.toast.hide { transform: translateX(120%); }
+
+/* ── DAMAGE FLASH ───────────────────────────── */
+#damageFlash {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(255,50,50,0.25);
+  z-index: 150;
+  pointer-events: none;
+  animation: flashFade 0.3s ease-out forwards;
+}
+@keyframes flashFade { 0%{opacity:1} 100%{opacity:0} }
+
+/* ── CONTACT FOOTER ─────────────────────────── */
+#contactFooter {
+  position: fixed;
+  bottom: 14px;
+  left: 14px;
+  display: flex;
+  gap: 10px;
+  z-index: 100;
+}
+#contactFooter a {
+  width: 32px;
+  height: 32px;
+  border: 1px solid #1a1a2e;
+  background: var(--panel);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #555;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+#contactFooter a:hover {
+  color: var(--cyan);
+  border-color: var(--cyan);
+  transform: translateY(-2px);
+}
+#contactFooter a svg { width: 16px; height: 16px; }
+
+/* ── BACK BUTTON ────────────────────────────── */
+#backBtn {
+  padding: 7px 18px;
+  background: transparent;
+  border: 1px solid #333;
+  color: #666;
+  cursor: pointer;
+  border-radius: 6px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px;
+  transition: all 0.18s;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+#backBtn:hover { border-color: #888; color: white; }
+#backBtn svg { width: 14px; height: 14px; }
+
+/* ── CREDIT ───────────────────────────────────────── */
+footer {
+  color: #667;
+  font-size: 12px;
+  margin-top: 8px;
+  letter-spacing: 1px;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+/* ── RESPONSIVE ─────────────────────────────── */
+@media (max-width: 600px) {
+  body { padding: 10px; gap: 10px; }
+  #contactFooter { bottom: 8px; left: 8px; gap: 8px; }
+  #contactFooter a { width: 36px; height: 36px; min-width: 36px; }
+  #contactFooter a svg { width: 16px; height: 16px; }
+  .dpad { grid-template-columns: repeat(3,44px); grid-template-rows: repeat(3,44px); }
+  .dp { width: 44px; height: 44px; font-size: 18px; }
+  .modal-wide { padding: 20px 16px; }
+  #toastContainer { bottom: 10px; right: 10px; }
+  #gameActions { margin-top: 28px; gap: 10px; }
+  #gameActions button { padding: 10px 18px; font-size: 13px; }
+}
+
+/* ── GAME ACTION BUTTONS ───────────────────── */
+#gameActions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 10px;
+}
+#gameActions button {
+  padding: 7px 16px;
+  background: transparent;
+  border: 1px solid #333;
+  color: #666;
+  cursor: pointer;
+  border-radius: 6px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px;
+  transition: all 0.18s;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+#gameActions button:hover { border-color: #888; color: white; }
+#gameActions button svg { width: 14px; height: 14px; }
+#copyCodeBtn { border-color: var(--cyan); color: var(--cyan); font-weight: bold; }
+#copyCodeBtn:hover { background: var(--cyan); color: #000; }
+#restartBtn { border-color: var(--gold); color: var(--gold); }
+#restartBtn:hover { background: var(--gold); color: #000; }
+#tryAIBtn { border-color: var(--green); color: var(--green); }
+#tryAIBtn:hover { background: var(--green); color: #000; }
+#changeAIDiffBtn { border-color: var(--cyan); color: var(--cyan); }
+#changeAIDiffBtn:hover { background: var(--cyan); color: #000; }
+.diff-impossible { border-color: var(--red); color: var(--red); font-weight: bold; }
+.diff-impossible:hover { background: var(--red); color: #000; text-shadow: 0 0 4px #000; }
+
+/* Room code display in game status */
+#gameStatus.has-room { cursor: pointer; border: 1px dashed rgba(0,229,255,0.3); padding: 6px 14px; border-radius: 6px; }
+#gameStatus.has-room:hover { border-color: var(--cyan); background: rgba(0,229,255,0.05); }
+#gameStatus.has-room:active { background: rgba(0,229,255,0.1); }
+
+/* ── BUG REPORT MODAL ──────────────────────── */
+#bugText {
+  width: 100%;
+  min-height: 100px;
+  padding: 10px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: #ccc;
+  border-radius: 6px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 13px;
+  resize: vertical;
+  outline: none;
+  margin-bottom: 12px;
+}
+#bugText:focus { border-color: var(--cyan); }
+#bugText::placeholder { color: #444; }
+</style>
+</head>
+<body>
+
+<!-- ── Sound Controls (fixed top-right) ──────── -->
+<div id="soundControls">
+  <button id="btnMusic" onclick="toggleMusic()" title="Toggle Music">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
+    </svg>
+  </button>
+  <button id="btnSfx" onclick="toggleSfx()" title="Toggle Sound Effects">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"/>
+    </svg>
+  </button>
+</div>
+
+<!-- ── Title ─────────────────────────────────── -->
+<a href="/" id="titleLink"><h1>SNAKE BATTLE</h1></a>
+
+<!-- ── Status Message ────────────────────────── -->
+<div id="statusMsg"></div>
+<button id="cancelMatchBtn" class="btn" onclick="cancelMatchmaking()" style="display:none; margin-top:8px; border-color:var(--red); color:var(--red);">✕ Cancel Search</button>
+
+<!-- ── Menu ───────────────────────────────────── -->
+<div id="menu">
+  <input id="nameInput" placeholder="Your name (optional)" maxlength="14" autocomplete="off">
+  <div class="input-row">
+    <input id="roomInput" placeholder="Room code (to join)" maxlength="6" autocomplete="off"
+           style="text-transform:uppercase; letter-spacing:2px;">
+  </div>
+  <div class="input-row">
+    <select id="gameModeInput" style="padding: 10px; background: rgba(0,229,255,0.05); color: var(--cyan); border: 1px solid rgba(0,229,255,0.3); border-radius: 4px; width: 100%; margin-bottom: 15px; font-family: 'Share Tech Mono', monospace; font-size: 14px; outline: none; cursor: pointer;">
+      <option value="normal" style="background:#111">Mode: Normal</option>
+      <option value="sudden_death" style="background:#111">Mode: Sudden Death</option>
+      <option value="last_man" style="background:#111" id="modeLastManOpt">Mode: Last Man Standing (Online)</option>
+    </select>
+  </div>
+  <div id="roomDisplay"></div>
+
+  <div class="btn-grid">
+    <button class="btn" id="btnOnline" onclick="startMatchmaking()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15 15 0 014 10 15 15 0 01-4 10 15 15 0 01-4-10A15 15 0 0112 2"/></svg>
+      Play Online
+    </button>
+    <button class="btn btn-green" id="btnAI" onclick="startAI()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="5" y="5" width="14" height="14" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/></svg>
+      vs AI
+    </button>
+    <button class="btn" id="btnCreate" onclick="createRoom()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M12 8v8M8 12h8"/></svg>
+      Create Room
+    </button>
+    <button class="btn" id="btnJoin" onclick="joinRoom()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+      Join Room
+    </button>
+    <button class="btn btn-local btn-wide" id="btnLocal" onclick="startLocal()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+      Play Local (2P)
+    </button>
+  </div>
+
+  <button class="btn btn-info" id="btnRules" onclick="showRules()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+    How to Play
+  </button>
+</div>
+
+<!-- ── Game Area ──────────────────────────────── -->
+<div id="gameArea">
+  <div id="gameStatus"></div>
+  <div id="matchmakingBar" style="display:none; align-items:center; justify-content:center; gap:10px; padding:6px 14px; background:rgba(0,229,255,0.08); border:1px solid rgba(0,229,255,0.25); border-radius:6px; font-size:12px; color:var(--cyan); width:100%; max-width:600px;">
+    <span style="animation:blink 1.2s step-end infinite;">⟳ Matchmaking in progress...</span>
+    <button class="btn" onclick="cancelBackgroundMatchmaking()" style="padding:4px 12px; font-size:11px; border-color:var(--red); color:var(--red);">Cancel</button>
+  </div>
+  <div id="playerCount" style="display:none; color:#aaa; font-size:12px; text-align:center; margin-top:-4px;"></div>
+  <canvas id="gameCanvas" width="900" height="600"></canvas>
+  <div id="playerLegend"></div>
+
+  <!-- PC local controls info -->
+  <div id="pcControlsInfo">
+    <span class="ctrl-p1">P1 &mdash; WASD</span>
+    <span class="ctrl-sep">|</span>
+    <span class="ctrl-p2">P2 &mdash; Arrow Keys</span>
+  </div>
+
+  <!-- Mobile: single d-pad (online / ai) -->
+  <div id="mobileControlsSingle">
+    <div class="dpad-wrap">
+      <div class="dpad-label lp1">CONTROLS</div>
+      <div class="dpad">
+        <div></div>
+        <button class="dp p1" ontouchstart="event.preventDefault();mobileDir(0,'UP')" onclick="mobileDir(0,'UP')">&#9650;</button>
+        <div></div>
+        <button class="dp p1" ontouchstart="event.preventDefault();mobileDir(0,'LEFT')" onclick="mobileDir(0,'LEFT')">&#9664;</button>
+        <div></div>
+        <button class="dp p1" ontouchstart="event.preventDefault();mobileDir(0,'RIGHT')" onclick="mobileDir(0,'RIGHT')">&#9654;</button>
+        <div></div>
+        <button class="dp p1" ontouchstart="event.preventDefault();mobileDir(0,'DOWN')" onclick="mobileDir(0,'DOWN')">&#9660;</button>
+        <div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile: dual d-pads (local) -->
+  <div id="mobileControlsLocal">
+    <div class="dpad-wrap">
+      <div class="dpad-label lp1">P1</div>
+      <div class="dpad">
+        <div></div>
+        <button class="dp p1" ontouchstart="event.preventDefault();mobileDir(1,'UP')" onclick="mobileDir(1,'UP')">&#9650;</button>
+        <div></div>
+        <button class="dp p1" ontouchstart="event.preventDefault();mobileDir(1,'LEFT')" onclick="mobileDir(1,'LEFT')">&#9664;</button>
+        <div></div>
+        <button class="dp p1" ontouchstart="event.preventDefault();mobileDir(1,'RIGHT')" onclick="mobileDir(1,'RIGHT')">&#9654;</button>
+        <div></div>
+        <button class="dp p1" ontouchstart="event.preventDefault();mobileDir(1,'DOWN')" onclick="mobileDir(1,'DOWN')">&#9660;</button>
+        <div></div>
+      </div>
+    </div>
+    <div class="dpad-wrap">
+      <div class="dpad-label lp2">P2</div>
+      <div class="dpad">
+        <div></div>
+        <button class="dp p2" ontouchstart="event.preventDefault();mobileDir(2,'UP')" onclick="mobileDir(2,'UP')">&#9650;</button>
+        <div></div>
+        <button class="dp p2" ontouchstart="event.preventDefault();mobileDir(2,'LEFT')" onclick="mobileDir(2,'LEFT')">&#9664;</button>
+        <div></div>
+        <button class="dp p2" ontouchstart="event.preventDefault();mobileDir(2,'RIGHT')" onclick="mobileDir(2,'RIGHT')">&#9654;</button>
+        <div></div>
+        <button class="dp p2" ontouchstart="event.preventDefault();mobileDir(2,'DOWN')" onclick="mobileDir(2,'DOWN')">&#9660;</button>
+        <div></div>
+      </div>
+    </div>
+  </div>
+  <div id="gameActions">
+    <button id="copyCodeBtn" style="display:none" onclick="copyRoomCode()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+      Copy Code
+    </button>
+    <button id="restartBtn" style="display:none" onclick="restartGame()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 105.64-8.36L1 10"/></svg>
+      Restart
+    </button>
+    <button id="tryAIBtn" style="display:none" onclick="tryAIWhileWaiting()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="5" y="5" width="14" height="14" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/></svg>
+      Try AI While Waiting
+    </button>
+    <button id="changeAIDiffBtn" style="display:none" onclick="startAI()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      Change Difficulty (<span id="currentAIDiff"></span>)
+    </button>
+    <button id="backBtn" onclick="goBack()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      Menu
+    </button>
+  </div>
+</div>
+
+<!-- ── Damage Flash Overlay ──────────────────── -->
+<div id="damageFlash"></div>
+
+<!-- ── Toast Container ───────────────────────── -->
+<div id="toastContainer"></div>
+
+<!-- ── AI Difficulty Modal ────────────────────── -->
+<div class="modal-overlay" id="aiModal" onclick="if(event.target===this)closeAIModal()">
+  <div class="modal">
+    <h2>SELECT DIFFICULTY</h2>
+    <div class="modal-btns">
+      <button class="diff-btn diff-easy"   onclick="startAIWithDiff('easy')">EASY</button>
+      <button class="diff-btn diff-medium" onclick="startAIWithDiff('medium')">MEDIUM</button>
+      <button class="diff-btn diff-hard"   onclick="startAIWithDiff('hard')">HARD</button>
+      <button class="diff-btn diff-impossible" onclick="startAIWithDiff('impossible')">IMPOSSIBLE</button>
+      <button class="diff-btn" onclick="closeAIModal()" style="border-color:#555;color:#666;margin-top:4px">CANCEL</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Rules Modal ───────────────────────────── -->
+<div class="modal-overlay" id="rulesModal" onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal modal-wide">
+    <h2>HOW TO PLAY</h2>
+    <div class="rules-section">
+      <h3>CONTROLS</h3>
+      <p><strong>PC:</strong> WASD (Player 1) / Arrow Keys (Player 2)</p>
+      <p><strong>Mobile:</strong> On-screen D-pad</p>
+    </div>
+    <div class="rules-section">
+      <h3>GAME MODES</h3>
+      <p><strong>Play Online</strong> &mdash; Auto-match with a random opponent</p>
+      <p><strong>vs AI</strong> &mdash; Battle the computer (3 difficulties)</p>
+      <p><strong>Create Room</strong> &mdash; Start a private room &amp; share the code</p>
+      <p><strong>Join Room</strong> &mdash; Enter a friend's room code to join</p>
+      <p><strong>Play Local</strong> &mdash; Two players on the same device</p>
+    </div>
+    <div class="rules-section">
+      <h3>SCORING</h3>
+      <p>Each player starts with <strong>30 points</strong> and length 3.</p>
+      <p>Eat food pellets: <strong>+10 points, +1 length</strong></p>
+      <p>Bite self or opponent: <strong>-10 points, -1 length</strong> to bitten snake</p>
+      <p>Head-on collision: <strong>both</strong> snakes take damage</p>
+    </div>
+    <div class="rules-section">
+      <h3>WIN / LOSE</h3>
+      <p>A snake is <strong>eliminated</strong> when its score drops to 0 or below.</p>
+      <p>Last snake standing <strong>wins</strong>.</p>
+      <p>If both/all are eliminated simultaneously: <strong>DRAW</strong>.</p>
+    </div>
+    <div class="rules-section" style="border-color:var(--gold)">
+      <h3>GAME MODES</h3>
+      <p><strong>Sudden Death:</strong> Walls start shrinking after 10 seconds. Touching them deals damage!</p>
+      <p><strong>Last Man Standing:</strong> Online only (3-4 players). No points for biting—just survive the chaos until only one remains.</p>
+    </div>
+    <button class="diff-btn diff-easy" onclick="closeRules()" style="margin-top:12px;width:100%">GOT IT</button>
+  </div>
+</div>
+
+<!-- ── Contact Footer ────────────────────────── -->
+<div id="contactFooter">
+  <!-- Email -->
+  <a href="mailto:harshitrawat3125@gmail.com" title="Email">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 7l-10 7L2 7"/>
+    </svg>
+  </a>
+  <!-- GitHub -->
+  <a href="https://github.com/ROGHET" target="_blank" rel="noopener" title="GitHub">
+    <svg viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.21 11.39.6.11.79-.26.79-.58v-2.23c-3.34.73-4.03-1.42-4.03-1.42-.55-1.39-1.33-1.76-1.33-1.76-1.09-.74.08-.73.08-.73 1.2.08 1.84 1.24 1.84 1.24 1.07 1.83 2.81 1.3 3.49 1 .11-.78.42-1.3.76-1.6-2.67-.31-5.47-1.34-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.13-.3-.54-1.52.12-3.18 0 0 1.01-.32 3.3 1.23.96-.27 1.98-.4 3-.4s2.05.13 3.01.4c2.29-1.55 3.3-1.23 3.3-1.23.65 1.65.24 2.87.12 3.18.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.62-5.48 5.92.43.37.82 1.1.82 2.22v3.29c0 .32.19.69.8.58C20.57 21.8 24 17.3 24 12c0-6.63-5.37-12-12-12z"/>
+    </svg>
+  </a>
+  <!-- LinkedIn -->
+  <a href="https://www.linkedin.com/in/harshit-rawat-956850298/" target="_blank" rel="noopener" title="LinkedIn">
+    <svg viewBox="0 0 24 24" fill="currentColor">
+      <path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 11-.01-4.13 2.06 2.06 0 01.01 4.13zm1.78 13.02H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/>
+    </svg>
+  </a>
+  <!-- Bug Report -->
+  <a href="javascript:void(0)" onclick="showBugReport()" ontouchend="event.preventDefault();showBugReport()" title="Report Bug">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M8 2l1.88 1.88M16 2l-1.88 1.88"/><path d="M9 7.13v-1a3 3 0 116 0v1"/><path d="M12 20a6 6 0 006-6v-3a4 4 0 00-4-4h-4a4 4 0 00-4 4v3a6 6 0 006 6z"/><path d="M12 20v-9"/><path d="M6.53 9A3.5 3.5 0 003 5M6 13H2M3.8 17A4 4 0 003 21M17.47 9A3.5 3.5 0 0021 5M18 13h4M20.2 17a4 4 0 01.8 4"/>
+    </svg>
+  </a>
+</div>
+
+
+<!-- ── Bug Report Modal ──────────────────────── -->
+<div class="modal-overlay" id="bugModal" onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal modal-wide">
+    <h2>REPORT A BUG</h2>
+    <p style="color:#888;font-size:12px;margin-bottom:12px">Describe the issue you encountered. Your report will be sent via email.</p>
+    <textarea id="bugText" placeholder="Describe the bug here..."></textarea>
+    <div style="display:flex;gap:8px">
+      <button class="diff-btn diff-easy" onclick="sendBugReport()" style="flex:1">SEND REPORT</button>
+      <button class="diff-btn" onclick="closeBugReport()" style="flex:1;border-color:#555;color:#888">CANCEL</button>
+    </div>
+  </div>
+</div>
+
+<footer>By Harshit Rawat</footer>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
