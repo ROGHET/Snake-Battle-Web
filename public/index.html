@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect x='2' y='2' width='12' height='12' rx='3' fill='%2300ff88'/></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect x='3' y='11' width='9' height='3' fill='%2300ff88'/><rect x='3' y='6' width='3' height='5' fill='%2300ff88'/><rect x='3' y='4' width='9' height='3' fill='%2300ff88'/><rect x='9' y='2' width='3' height='2' fill='%2300ff88'/><rect x='6' y='1' width='6' height='3' fill='%2300ff88'/><rect x='4' y='2' width='2' height='1' fill='%23ff4466'/><rect x='7' y='2' width='1' height='1' fill='%23000000'/></svg>">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -214,12 +214,21 @@ footer { color: #667; font-size: 12px; margin-top: 8px; letter-spacing: 1px; fon
 
 /* ── RESPONSIVE ── */
 @media (max-width: 600px) {
+  html, body { overflow-x: auto; }
   body { padding: 10px; gap: 10px; }
   #contactFooter { bottom: 8px; left: 8px; gap: 8px; }
   #contactFooter a { width: 36px; height: 36px; min-width: 36px; }
   #mobileControlsLocal { gap: 15px; }
-  .dpad { grid-template-columns: repeat(3, min(14vw, 48px)); grid-template-rows: repeat(3, min(14vw, 48px)); gap: min(1vw, 6px); }
-  .dp { width: min(14vw, 48px); height: min(14vw, 48px); font-size: 18px; min-width: 0; min-height: 0; }
+  .dpad { 
+    grid-template-columns: repeat(3, 14vw); grid-template-rows: repeat(3, 14vw);
+    grid-template-columns: repeat(3, min(14vw, 48px)); grid-template-rows: repeat(3, min(14vw, 48px)); 
+    gap: 4px; 
+  }
+  .dp { 
+    width: 14vw; height: 14vw;
+    width: min(14vw, 48px); height: min(14vw, 48px); 
+    font-size: 18px; min-width: 0; min-height: 0; 
+  }
   .modal-wide { padding: 20px 16px; }
   #toastContainer { bottom: 10px; right: 10px; }
   #gameActions { margin-top: 36px; gap: 10px; }
