@@ -1377,7 +1377,9 @@ function tickGame() {
             // Theft on ANY body segment touch (Current and Previous to catch swaps)
             let theft = false;
             const holderEff = getEffect(crownHolder);
-            const isHolderInvincible = (holderEff && holderEff.type === "invisibility");
+            const pKing = players.find(player => player && player.id === crownHolder);
+            const isKingImmune = pKing && pKing.invuln > Date.now();
+            const isHolderInvincible = (holderEff && holderEff.type === "invisibility") || isKingImmune;
 
             if (!isHolderInvincible) {
               const hKing = holderSnake[0];
@@ -1398,16 +1400,11 @@ function tickGame() {
                   if (hit(hAttacker, seg)) { theft = true; break; }
                 }
               }
-              // 4. Head-to-Head adjacent overlap (for smoothness in 1-overlap)
-              if (!theft) {
-                const dist = Math.abs(hAttacker.x - hKing.x) + Math.abs(hAttacker.y - hKing.y);
-                // Host allows a slightly larger radius (1.5 units) to compensate for guest lag
-                if (dist <= UNIT * 1.5) { theft = true; } 
-              }
             }
             
             if (theft) {
               crownHolder = p.id;
+              p.invuln = Date.now() + 1000; // 1 second immunity after steal
               const pname = p.id === "p1" ? player1Name : p.id === "p2" ? player2Name : p.id === "p3" ? player3Name : player4Name;
               showToast("Crown Stolen by " + pname + "!");
               sfxPowerUp();
