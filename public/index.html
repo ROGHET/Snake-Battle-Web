@@ -13,505 +13,235 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --green: #00ff88;
-  --green-dim: #009955;
-  --red: #ff4466;
-  --red-dim: #aa1133;
-  --cyan: #00e5ff;
-  --gold: #ffcc00;
-  --bg: #06060f;
-  --panel: #0d0d1a;
-  --border: #1a1a33;
+  --green: #00ff88; --green-dim: #009955;
+  --red: #ff4466; --red-dim: #aa1133;
+  --cyan: #00e5ff; --gold: #ffcc00;
+  --bg: #06060f; --panel: #0d0d1a; --border: #1a1a33;
 }
 
-html, body {
-  background: var(--bg);
-  color: #e0e0e0;
-  font-family: 'Share Tech Mono', monospace;
-  min-height: 100vh;
-  overflow-x: hidden;
-}
+html, body { background: var(--bg); color: #e0e0e0; font-family: 'Share Tech Mono', monospace; min-height: 100vh; overflow-x: hidden; }
+body { display: flex; flex-direction: column; align-items: center; padding: 16px; gap: 14px; }
 
-body {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 16px;
-  gap: 14px;
-}
-
-/* ── TITLE ──────────────────────────────────── */
-#titleLink {
-  text-decoration: none;
-  color: inherit;
-  -webkit-tap-highlight-color: transparent;
-}
-h1 {
-  font-family: 'Orbitron', sans-serif;
-  font-size: clamp(1.5rem, 5vw, 2.6rem);
-  font-weight: 900;
-  background: linear-gradient(90deg, var(--green), var(--cyan), var(--green));
-  background-size: 200%;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: shimmer 3s linear infinite;
-  letter-spacing: 2px;
-  text-align: center;
-}
+/* ── TITLE ── */
+#titleLink { text-decoration: none; color: inherit; -webkit-tap-highlight-color: transparent; }
+h1 { font-family: 'Orbitron', sans-serif; font-size: clamp(1.5rem,5vw,2.6rem); font-weight: 900;
+  background: linear-gradient(90deg,var(--green),var(--cyan),var(--green)); background-size: 200%;
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  animation: shimmer 3s linear infinite, titleGlow 2s ease-in-out infinite alternate;
+  letter-spacing: 2px; text-align: center; filter: drop-shadow(0 0 20px rgba(0,255,136,0.3)); }
 @keyframes shimmer { 0%{background-position:0%} 100%{background-position:200%} }
+@keyframes titleGlow { 0%{filter:drop-shadow(0 0 10px rgba(0,255,136,0.2))} 100%{filter:drop-shadow(0 0 30px rgba(0,229,255,0.5))} }
 
-/* ── SOUND CONTROLS ─────────────────────────── */
-#soundControls {
-  position: fixed;
-  top: 12px;
-  right: 12px;
-  display: flex;
-  gap: 6px;
-  z-index: 100;
-}
-#soundControls button {
-  width: 36px;
-  height: 36px;
-  border: 1px solid var(--border);
-  background: var(--panel);
-  color: var(--cyan);
-  border-radius: 8px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-  padding: 0;
-}
-#soundControls button:hover { border-color: var(--cyan); }
-#soundControls button.muted { color: #333; border-color: #1a1a1a; }
-#soundControls button svg { width: 18px; height: 18px; }
+/* ── MENU BUTTON ENTRANCE ANIMATION ── */
+.btn-grid .btn, .btn-wide { animation: btnEntrance 0.5s ease-out both; }
+.btn-grid .btn:nth-child(1) { animation-delay: 0.05s; }
+.btn-grid .btn:nth-child(2) { animation-delay: 0.1s; }
+.btn-grid .btn:nth-child(3) { animation-delay: 0.15s; }
+.btn-grid .btn:nth-child(4) { animation-delay: 0.2s; }
+.btn-grid .btn:nth-child(5) { animation-delay: 0.25s; }
+@keyframes btnEntrance { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
 
-/* ── MENU ───────────────────────────────────── */
-#menu {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-  max-width: 440px;
+/* ── SOUND CONTROLS ── */
+#soundControls { position: fixed; top: 12px; right: 12px; display: flex; align-items: center; gap: 8px; z-index: 1000; }
+#soundControls button { background: rgba(0,0,0,0.6); border: 1px solid rgba(0,229,255,0.3); color: var(--cyan); 
+  width: 32px; height: 32px; border-radius: 4px; display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: 0.2s; padding: 0; }
+#soundControls button:hover { border-color: var(--cyan); background: rgba(0,229,255,0.15); }
+#soundControls button.muted { color: #555; border-color: #333; }
+#soundControls button svg { width: 18px; height: 18px; stroke: currentColor; fill: none; }
+.vol-box { display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.6); 
+  padding: 4px 12px; border-radius: 4px; border: 1px solid rgba(0,229,255,0.3); }
+#soundControls input[type="range"] { 
+  -webkit-appearance: none; appearance: none;
+  width: 100px; height: 6px; background: rgba(0,0,0,0.3); border-radius: 3px; 
+  cursor: pointer; margin: 0; padding: 0; outline: none; border: none;
 }
-.input-row {
-  display: flex;
-  gap: 8px;
-  width: 100%;
+#soundControls input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 12px; height: 12px; background: var(--cyan); border-radius: 50%;
+  box-shadow: 0 0 8px var(--cyan); border: none;
 }
-input {
-  flex: 1;
-  padding: 10px 14px;
-  background: var(--panel);
-  border: 1px solid var(--border);
-  color: white;
-  border-radius: 6px;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 14px;
-  outline: none;
-  transition: border-color 0.2s;
+#soundControls input[type="range"]::-moz-range-thumb {
+  width: 12px; height: 12px; background: var(--cyan); border-radius: 50%;
+  box-shadow: 0 0 8px var(--cyan); border: none;
 }
+#soundControls input[type="range"]::-webkit-slider-runnable-track { background: transparent; border: none; }
+#soundControls input[type="range"]::-moz-range-track { background: transparent; border: none; }
+.new-tag { color: var(--gold); font-weight: bold; }
+.shortcut-tip { color: #555; font-size: 10px; margin-left: 8px; vertical-align: middle; }
+#titleShortcuts { font-size: 11px; color: #555; margin-top: -4px; animation: blink 2s infinite; }
+
+/* ── MENU ── */
+#menu { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; max-width: 440px; }
+.input-row { display: flex; gap: 8px; width: 100%; }
+input { flex: 1; padding: 10px 14px; background: var(--panel); border: 1px solid var(--border);
+  color: white; border-radius: 6px; font-family: 'Share Tech Mono', monospace; font-size: 14px;
+  outline: none; transition: border-color 0.2s; }
 input:focus { border-color: var(--cyan); }
 input::placeholder { color: #444; }
 
-/* ── BUTTONS ────────────────────────────────── */
-.btn-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  width: 100%;
-}
+/* ── BUTTONS ── */
+.btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; }
 .btn-wide { grid-column: span 2; }
 .btn {
-  padding: 11px 14px;
-  border: 1px solid var(--cyan);
-  background: transparent;
-  color: #e0e0e0;
-  cursor: pointer;
-  border-radius: 8px;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 13px;
-  font-weight: bold;
-  transition: all 0.18s;
-  white-space: nowrap;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-}
-.btn svg {
-  width: 15px;
-  height: 15px;
-  flex-shrink: 0;
-}
-.btn:hover {
-  background: var(--cyan);
-  color: #000;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 18px rgba(0,229,255,0.3);
-}
+  padding: 11px 14px; border: 1px solid var(--cyan); background: transparent; color: #e0e0e0;
+  cursor: pointer; border-radius: 8px; font-family: 'Share Tech Mono', monospace;
+  font-size: 13px; font-weight: bold; transition: all 0.18s; white-space: nowrap;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+.btn svg { width: 15px; height: 15px; flex-shrink: 0; }
+.btn:hover { background: var(--cyan); color: #000; transform: translateY(-1px); box-shadow: 0 4px 18px rgba(0,229,255,0.3); }
 .btn:active { transform: translateY(0); }
 .btn-green { border-color: var(--green); }
 .btn-green:hover { background: var(--green); box-shadow: 0 4px 18px rgba(0,255,136,0.3); }
 .btn-local { border-color: var(--gold); color: var(--gold); }
 .btn-local:hover { background: var(--gold); color: #000; box-shadow: 0 4px 18px rgba(255,204,0,0.3); }
-.btn-info {
-  border-color: #555;
-  color: #888;
-  padding: 8px 20px;
-  font-size: 12px;
-  width: auto;
-}
+.btn-info { border-color: #555; color: #888; padding: 8px 20px; font-size: 12px; width: auto; }
 .btn-info:hover { border-color: var(--cyan); color: white; background: transparent; box-shadow: none; }
+.btn-gold { border-color: var(--gold); color: var(--gold); }
+.btn-gold:hover { background: var(--gold); color: #000; box-shadow: 0 4px 18px rgba(255,204,0,0.3); }
 
-/* ── ROOM DISPLAY ───────────────────────────── */
-#roomDisplay {
-  display: none;
-  background: #001a1a;
-  border: 1px solid var(--cyan);
-  padding: 12px 18px;
-  border-radius: 8px;
-  font-family: 'Orbitron', sans-serif;
-  font-size: 1.1em;
-  letter-spacing: 3px;
-  color: var(--cyan);
-  width: 100%;
-  text-align: center;
-  animation: pulse-border 2s ease-in-out infinite;
-}
-@keyframes pulse-border {
-  0%,100%{ box-shadow: 0 0 8px rgba(0,229,255,0.3) }
-  50%{ box-shadow: 0 0 18px rgba(0,229,255,0.7) }
-}
+/* ── ROOM DISPLAY ── */
+#roomDisplay { display: none; background: #001a1a; border: 1px solid var(--cyan); padding: 12px 18px;
+  border-radius: 8px; font-family: 'Orbitron', sans-serif; font-size: 1.1em; letter-spacing: 3px;
+  color: var(--cyan); width: 100%; text-align: center; animation: pulse-border 2s ease-in-out infinite; }
+@keyframes pulse-border { 0%,100%{ box-shadow:0 0 8px rgba(0,229,255,0.3) } 50%{ box-shadow:0 0 18px rgba(0,229,255,0.7) } }
 
-/* ── STATUS ─────────────────────────────────── */
-#statusMsg {
-  display: none;
-  color: #888;
-  font-size: 13px;
-  text-align: center;
-  padding: 6px;
-  animation: blink 1.2s step-end infinite;
-}
+/* ── STATUS ── */
+#statusMsg { display: none; color: #888; font-size: 13px; text-align: center; padding: 6px; animation: blink 1.2s step-end infinite; }
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
-/* ── GAME AREA ──────────────────────────────── */
-#gameArea {
-  display: none;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-}
-#gameStatus {
-  display: none;
-  color: var(--cyan);
-  font-size: 13px;
-  text-align: center;
-}
+/* ── GAME AREA ── */
+#gameArea { display: none; flex-direction: column; align-items: center; gap: 10px; width: 100%; }
+#gameStatus { display: none; color: var(--cyan); font-size: 13px; text-align: center; }
 
-/* ── CANVAS ─────────────────────────────────── */
-canvas {
-  border: 1px solid rgba(0,229,255,0.25);
-  border-radius: 6px;
-  display: block;
-  max-width: 100%;
-  height: auto;
-  box-shadow: 0 0 40px rgba(0,255,136,0.08), 0 0 80px rgba(0,0,0,0.8);
-}
+/* ── CANVAS ── */
+canvas { border: 1px solid rgba(0,229,255,0.25); border-radius: 6px; display: block;
+  max-width: 100%; height: auto; box-shadow: 0 0 40px rgba(0,255,136,0.08), 0 0 80px rgba(0,0,0,0.8); }
 
-/* ── PLAYER LEGEND ──────────────────────────── */
-#playerLegend {
-  display: none;
-  justify-content: center;
-  gap: 24px;
-  padding: 8px 16px;
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  font-size: 13px;
-}
-.legend-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: #aaa;
-}
-.legend-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  display: inline-block;
-}
+/* ── PLAYER LEGEND ── */
+#playerLegend { display: none; justify-content: center; gap: 20px; padding: 8px 16px; flex-wrap: wrap;
+  background: var(--panel); border: 1px solid var(--border); border-radius: 8px; font-size: 13px; }
+.legend-item { display: flex; align-items: center; gap: 6px; color: #aaa; }
+.legend-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
 
-/* ── PC CONTROLS INFO ───────────────────────── */
-#pcControlsInfo {
-  display: none;
-  gap: 24px;
-  font-size: 13px;
-  color: #555;
-  background: var(--panel);
-  padding: 8px 20px;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  align-items: center;
-}
-.ctrl-p1 { color: var(--green); }
-.ctrl-p2 { color: var(--red); }
-.ctrl-sep { color: #2a2a2a; }
+/* ── PC CONTROLS ── */
+#pcControlsInfo { display: none; gap: 24px; font-size: 13px; color: #555;
+  background: var(--panel); padding: 8px 20px; border-radius: 8px; border: 1px solid var(--border); align-items: center; }
+.ctrl-p1 { color: var(--green); } .ctrl-p2 { color: var(--red); } .ctrl-sep { color: #2a2a2a; }
 
-/* ── MOBILE DPAD ────────────────────────────── */
-#mobileControlsSingle,
-#mobileControlsLocal {
-  display: none;
-  width: 100%;
-  max-width: 600px;
-  justify-content: space-around;
-  gap: 20px;
-  padding: 8px 0;
-}
+/* ── MOBILE DPAD ── */
+#mobileControlsSingle, #mobileControlsLocal {
+  display: none; width: 100%; max-width: 600px; justify-content: space-around; gap: 20px; padding: 8px 0; }
 #mobileControlsSingle { justify-content: center; }
 .dpad-wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; }
-.dpad-label {
-  font-family: 'Orbitron', sans-serif;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 1px;
-}
-.lp1 { color: var(--green); }
-.lp2 { color: var(--red); }
-.dpad {
-  display: grid;
-  grid-template-columns: repeat(3, 48px);
-  grid-template-rows: repeat(3, 48px);
-  gap: 3px;
-}
+.dpad-label { font-family: 'Orbitron', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 1px; }
+.lp1 { color: var(--green); } .lp2 { color: var(--red); }
+.dpad { display: grid; grid-template-columns: repeat(3,56px); grid-template-rows: repeat(3,56px); gap: 6px; }
 .dp {
-  width: 48px; height: 48px;
-  border: 1px solid;
-  background: rgba(255,255,255,0.03);
-  color: white;
-  font-size: 20px;
-  cursor: pointer;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  touch-action: manipulation;
-  user-select: none;
-  -webkit-tap-highlight-color: transparent;
-  transition: background 0.1s, transform 0.1s;
-}
-.dp:active { transform: scale(0.9); }
+  width: 56px; height: 56px; border: 1px solid; background: rgba(255,255,255,0.04);
+  color: white; font-size: 22px; cursor: pointer; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  touch-action: manipulation; user-select: none; -webkit-tap-highlight-color: transparent;
+  transition: background 0.08s, transform 0.08s, box-shadow 0.08s; min-width: 56px; min-height: 56px; }
+.dp:active { transform: scale(0.88); }
 .dp.p1 { border-color: rgba(0,255,136,0.4); }
-.dp.p1:active { background: rgba(0,255,136,0.2); }
+.dp.p1:active { background: rgba(0,255,136,0.3); box-shadow: 0 0 10px rgba(0,255,136,0.4); }
 .dp.p2 { border-color: rgba(255,68,102,0.4); }
-.dp.p2:active { background: rgba(255,68,102,0.2); }
+.dp.p2:active { background: rgba(255,68,102,0.3); box-shadow: 0 0 10px rgba(255,68,102,0.4); }
 
-/* ── MODALS ─────────────────────────────────── */
-.modal-overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.88);
-  z-index: 200;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-}
-.modal {
-  background: var(--panel);
-  border: 1px solid var(--cyan);
-  border-radius: 14px;
-  padding: 28px 24px;
-  text-align: center;
-  width: 290px;
-  max-height: 85vh;
-  overflow-y: auto;
-  box-shadow: 0 0 40px rgba(0,229,255,0.2);
-}
-.modal-wide {
-  width: 380px;
-  max-width: 95vw;
-  text-align: left;
-}
-.modal h2 {
-  font-family: 'Orbitron', sans-serif;
-  color: var(--cyan);
-  margin-bottom: 20px;
-  font-size: 1.05em;
-  text-align: center;
-}
+/* ── MODALS ── */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.88);
+  z-index: 200; align-items: center; justify-content: center; padding: 16px; }
+.modal { background: var(--panel); border: 1px solid var(--cyan); border-radius: 14px;
+  padding: 28px 24px; text-align: center; width: 290px; max-height: 88vh;
+  overflow-y: auto; box-shadow: 0 0 40px rgba(0,229,255,0.2); }
+.modal-wide { width: 400px; max-width: 95vw; text-align: left; }
+.modal h2 { font-family: 'Orbitron', sans-serif; color: var(--cyan); margin-bottom: 20px; font-size: 1.05em; text-align: center; }
 .modal-btns { display: flex; flex-direction: column; gap: 10px; }
-.diff-btn {
-  padding: 12px;
-  border: 1px solid;
-  background: transparent;
-  color: white;
-  cursor: pointer;
-  border-radius: 8px;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 15px;
-  font-weight: bold;
-  transition: all 0.18s;
-}
+.diff-btn { padding: 12px; border: 1px solid; background: transparent; color: white; cursor: pointer;
+  border-radius: 8px; font-family: 'Share Tech Mono', monospace; font-size: 15px; font-weight: bold; transition: all 0.18s; }
 .diff-easy { border-color: var(--green); color: var(--green); }
 .diff-easy:hover { background: var(--green); color: #000; }
 .diff-medium { border-color: var(--gold); color: var(--gold); }
 .diff-medium:hover { background: var(--gold); color: #000; }
 .diff-hard { border-color: var(--red); color: var(--red); }
 .diff-hard:hover { background: var(--red); color: #000; }
+.diff-impossible { border-color: var(--red); color: var(--red); font-weight: bold; letter-spacing: 1px; }
+.diff-impossible:hover { background: var(--red); color: #000; }
 
-/* ── RULES CONTENT ──────────────────────────── */
-.rules-section { margin-bottom: 16px; }
-.rules-section h3 {
-  color: var(--cyan);
-  font-family: 'Orbitron', sans-serif;
-  font-size: 0.8em;
-  margin-bottom: 8px;
-  letter-spacing: 1px;
-}
-.rules-section p {
-  color: #999;
-  font-size: 12px;
-  line-height: 1.6;
-  margin-bottom: 2px;
-}
+/* ── RULES CONTENT ── */
+.rules-section { margin-bottom: 16px; border-left: 2px solid var(--border); padding-left: 10px; }
+.rules-section.pu { border-color: rgba(255,204,0,0.4); }
+.rules-section.sd { border-color: rgba(255,0,0,0.4); }
+.rules-section.blitz { border-color: rgba(255,100,0,0.5); }
+.rules-section h3 { color: var(--cyan); font-family: 'Orbitron', sans-serif; font-size: 0.78em; margin-bottom: 8px; letter-spacing: 1px; }
+.rules-section p { color: #999; font-size: 12px; line-height: 1.65; margin-bottom: 3px; }
 .rules-section p strong { color: #ccc; }
+.pu-row { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+.pu-badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: bold;
+  font-family: 'Share Tech Mono', monospace; border: 1px solid; min-width: 32px; text-align: center; }
 
-/* ── TOAST NOTIFICATIONS ────────────────────── */
-#toastContainer {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  z-index: 300;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  pointer-events: none;
-}
-.toast {
-  background: rgba(13,13,26,0.95);
-  border: 1px solid var(--cyan);
-  border-radius: 8px;
-  padding: 10px 16px;
-  color: var(--cyan);
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 12px;
-  transform: translateX(120%);
-  transition: transform 0.4s ease;
-  box-shadow: 0 4px 20px rgba(0,229,255,0.15);
-  white-space: nowrap;
-}
+/* ── TOAST NOTIFICATIONS ── */
+#toastContainer { position: fixed; bottom: 20px; right: 20px; z-index: 300;
+  display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+.toast { background: rgba(13,13,26,0.96); border: 1px solid var(--cyan); border-radius: 8px;
+  padding: 10px 16px; color: var(--cyan); font-family: 'Share Tech Mono', monospace; font-size: 12px;
+  transform: translateX(120%); transition: transform 0.4s ease; box-shadow: 0 4px 20px rgba(0,229,255,0.15); white-space: nowrap; }
 .toast.show { transform: translateX(0); }
 .toast.hide { transform: translateX(120%); }
 
-/* ── DAMAGE FLASH ───────────────────────────── */
-#damageFlash {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(255,50,50,0.25);
-  z-index: 150;
-  pointer-events: none;
-  animation: flashFade 0.3s ease-out forwards;
-}
+/* ── DAMAGE FLASH ── */
+#damageFlash { display: none; position: fixed; inset: 0; background: rgba(255,50,50,0.25);
+  z-index: 150; pointer-events: none; animation: flashFade 0.3s ease-out forwards; }
 @keyframes flashFade { 0%{opacity:1} 100%{opacity:0} }
 
-/* ── CONTACT FOOTER ─────────────────────────── */
-#contactFooter {
-  position: fixed;
-  bottom: 14px;
-  left: 14px;
-  display: flex;
-  gap: 10px;
-  z-index: 100;
-}
-#contactFooter a {
-  width: 32px;
-  height: 32px;
-  border: 1px solid #1a1a2e;
-  background: var(--panel);
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #555;
-  text-decoration: none;
-  transition: all 0.2s;
-}
-#contactFooter a:hover {
-  color: var(--cyan);
-  border-color: var(--cyan);
-  transform: translateY(-2px);
-}
+/* ── CONTACT FOOTER ── */
+#contactFooter { position: fixed; bottom: 14px; left: 14px; display: flex; gap: 10px; z-index: 100; }
+#contactFooter a { width: 32px; height: 32px; border: 1px solid #1a1a2e; background: var(--panel);
+  border-radius: 8px; display: flex; align-items: center; justify-content: center;
+  color: #555; text-decoration: none; transition: all 0.2s; }
+#contactFooter a:hover { color: var(--cyan); border-color: var(--cyan); transform: translateY(-2px); }
 #contactFooter a svg { width: 16px; height: 16px; }
 
-/* ── BACK BUTTON ────────────────────────────── */
-#backBtn {
-  padding: 7px 18px;
-  background: transparent;
-  border: 1px solid #333;
-  color: #666;
-  cursor: pointer;
-  border-radius: 6px;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 12px;
-  transition: all 0.18s;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
+/* ── BACK BUTTON ── */
+#backBtn { padding: 7px 18px; background: transparent; border: 1px solid #333; color: #666;
+  cursor: pointer; border-radius: 6px; font-family: 'Share Tech Mono', monospace; font-size: 12px;
+  transition: all 0.18s; display: inline-flex; align-items: center; gap: 4px; }
 #backBtn:hover { border-color: #888; color: white; }
 #backBtn svg { width: 14px; height: 14px; }
 
-/* ── CREDIT ───────────────────────────────────────── */
-footer {
-  color: #667;
-  font-size: 12px;
-  margin-top: 8px;
-  letter-spacing: 1px;
-  font-family: 'Share Tech Mono', monospace;
-}
+footer { color: #667; font-size: 12px; margin-top: 8px; letter-spacing: 1px; font-family: 'Share Tech Mono', monospace; }
 
-/* ── RESPONSIVE ─────────────────────────────── */
+/* ── RESPONSIVE ── */
 @media (max-width: 600px) {
   body { padding: 10px; gap: 10px; }
   #contactFooter { bottom: 8px; left: 8px; gap: 8px; }
   #contactFooter a { width: 36px; height: 36px; min-width: 36px; }
-  #contactFooter a svg { width: 16px; height: 16px; }
-  .dpad { grid-template-columns: repeat(3,44px); grid-template-rows: repeat(3,44px); }
-  .dp { width: 44px; height: 44px; font-size: 18px; }
+  #mobileControlsLocal { gap: 10px; }
+  .dpad { grid-template-columns: repeat(3,46px); grid-template-rows: repeat(3,46px); gap: 4px; }
+  .dp { width: 46px; height: 46px; font-size: 18px; min-width: 46px; min-height: 46px; }
   .modal-wide { padding: 20px 16px; }
   #toastContainer { bottom: 10px; right: 10px; }
-  #gameActions { margin-top: 28px; gap: 10px; }
+  #gameActions { margin-top: 36px; gap: 10px; }
   #gameActions button { padding: 10px 18px; font-size: 13px; }
 }
 
-/* ── GAME ACTION BUTTONS ───────────────────── */
-#gameActions {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  justify-content: center;
-  margin-top: 10px;
-}
+/* ── MODE SUMMARY ── */
+#modeSummary { color: #555; font-size: 11px; text-align: center; margin-top: -8px; min-height: 16px; transition: color 0.3s; }
+
+/* ── DETECTIVE BUTTONS ── */
+#inspectBtn, #scanBtn { display: none; }
+#inspectBtn { border-color: #4488ff; color: #4488ff; }
+#inspectBtn:hover { background: #4488ff; color: #000; }
+#scanBtn { border-color: #ff4466; color: #ff4466; }
+#scanBtn:hover { background: #ff4466; color: #000; }
+
+/* ── GAME ACTIONS ── */
+#gameActions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 10px; }
 #gameActions button {
-  padding: 7px 16px;
-  background: transparent;
-  border: 1px solid #333;
-  color: #666;
-  cursor: pointer;
-  border-radius: 6px;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 12px;
-  transition: all 0.18s;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
+  padding: 7px 16px; background: transparent; border: 1px solid #333; color: #666;
+  cursor: pointer; border-radius: 6px; font-family: 'Share Tech Mono', monospace; font-size: 12px;
+  transition: all 0.18s; display: inline-flex; align-items: center; gap: 4px; }
 #gameActions button:hover { border-color: #888; color: white; }
 #gameActions button svg { width: 14px; height: 14px; }
 #copyCodeBtn { border-color: var(--cyan); color: var(--cyan); font-weight: bold; }
@@ -522,70 +252,121 @@ footer {
 #tryAIBtn:hover { background: var(--green); color: #000; }
 #changeAIDiffBtn { border-color: var(--cyan); color: var(--cyan); }
 #changeAIDiffBtn:hover { background: var(--cyan); color: #000; }
-.diff-impossible { border-color: var(--red); color: var(--red); font-weight: bold; }
-.diff-impossible:hover { background: var(--red); color: #000; text-shadow: 0 0 4px #000; }
-
-/* Room code display in game status */
 #gameStatus.has-room { cursor: pointer; border: 1px dashed rgba(0,229,255,0.3); padding: 6px 14px; border-radius: 6px; }
 #gameStatus.has-room:hover { border-color: var(--cyan); background: rgba(0,229,255,0.05); }
-#gameStatus.has-room:active { background: rgba(0,229,255,0.1); }
-
-/* ── BUG REPORT MODAL ──────────────────────── */
-#bugText {
-  width: 100%;
-  min-height: 100px;
-  padding: 10px;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  color: #ccc;
-  border-radius: 6px;
+#titleContainer h1 { display: inline-block; position: relative; margin: 0; }
+#splashText {
+  position: absolute;
+  bottom: -12px;
+  right: -30px;
+  color: #ffff00; /* Bright yellow */
   font-family: 'Share Tech Mono', monospace;
-  font-size: 13px;
-  resize: vertical;
-  outline: none;
-  margin-bottom: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  transform: rotate(-5deg);
+  text-shadow: 2px 2px 0px #000;
+  animation: splashPulse 0.50s ease-in-out infinite alternate;
+  pointer-events: none;
+  z-index: 100;
+  white-space: nowrap;
+  
+  /* Reset parent h1 transparent clipping */
+  -webkit-text-fill-color: #ffff00;
+  -webkit-background-clip: initial;
+  background: none;
 }
+@keyframes splashPulse {
+  from { transform: rotate(-5deg) scale(0.9); }
+  to { transform: rotate(-5deg) scale(1.1); }
+}
+#roleInfo { color: #888; font-size: 13px; text-align: center; margin-bottom: 4px; font-weight: bold; min-height: 18px; }
+.role-detective { color: #4488ff; }
+.role-imposter { color: #00ff88; }
+.role-king { color: var(--gold); }
+.controls-hint { color: #555; font-size: 11px; margin-top: 4px; }
+textarea { width: 100%; height: 100px; background: #1a1a1a; border: 1px solid #333; border-radius: 8px; color: #fff; padding: 12px; font-family: inherit; font-size: 13px; resize: none; margin-bottom: 12px; outline: none; box-shadow: inset 0 2px 4px rgba(0,0,0,0.5); }
+textarea:focus { border-color: var(--cyan); }
+#projectBranding { color: #00ff88; font-size: 11px; text-align: center; margin-top: 10px; letter-spacing: 2px; font-family: 'Orbitron', sans-serif; opacity: 1; font-weight: bold; text-shadow: 0 0 5px rgba(0,255,136,0.5); border-top: 1px solid rgba(0,255,136,0.1); padding-top: 10px; }
+
+/* ── LEADERBOARD ── */
+#lbModal .modal { width: 380px; max-width: 95vw; text-align: left; }
+.lb-tabs { display: flex; gap: 8px; margin-bottom: 14px; }
+.lb-tab { flex: 1; padding: 7px; border: 1px solid var(--border); background: transparent;
+  color: #666; cursor: pointer; border-radius: 6px; font-family: 'Share Tech Mono', monospace;
+  font-size: 11px; letter-spacing: 1px; transition: all 0.18s; text-align: center; }
+.lb-tab.active { border-color: var(--cyan); color: var(--cyan); background: rgba(0,229,255,0.07); }
+.lb-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.lb-table th { color: var(--cyan); padding: 6px 8px; border-bottom: 1px solid var(--border);
+  text-align: left; font-family: 'Orbitron', sans-serif; font-size: 9px; letter-spacing: 1px; }
+.lb-table td { padding: 6px 8px; border-bottom: 1px solid rgba(255,255,255,0.04); color: #999; vertical-align: middle; }
+
+/* ── IMPOSSIBLE WIN MODAL ── */
+#lbNameModal .modal { width: 320px; }
+#lbNameInput { width: 100%; padding: 10px 14px; background: var(--bg); border: 1px solid var(--border);
+  color: white; border-radius: 6px; font-family: 'Share Tech Mono', monospace; font-size: 14px;
+  outline: none; margin: 12px 0; transition: border-color 0.2s; }
+#lbNameInput:focus { border-color: var(--cyan); }
+
+/* ── BUG REPORT ── */
 #bugText:focus { border-color: var(--cyan); }
 #bugText::placeholder { color: #444; }
+
+/* ── MARQUEE CRAWLER ── */
+#marqueeContainer { width: 100%; max-width: 440px; overflow: hidden; background: rgba(0,0,0,0.3); 
+  border-top: 1px solid rgba(0,229,255,0.1); border-bottom: 1px solid rgba(0,229,255,0.1);
+  padding: 6px 0; margin-top: 10px; display: none; }
+#marqueeText { white-space: nowrap; display: inline-block; padding-left: 100%;
+  animation: marquee 15s linear infinite; color: var(--cyan); font-size: 13px; letter-spacing: 1px; }
+@keyframes marquee { 0%{transform:translate(0,0)} 100%{transform:translate(-200%,0)} }
 </style>
 </head>
 <body>
 
-<!-- ── Sound Controls (fixed top-right) ──────── -->
+<!-- ── Sound Controls ── -->
 <div id="soundControls">
-  <button id="btnMusic" onclick="toggleMusic()" title="Toggle Music">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
-    </svg>
-  </button>
-  <button id="btnSfx" onclick="toggleSfx()" title="Toggle Sound Effects">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"/>
-    </svg>
+  <button id="btnMusic" onclick="toggleMusic()" title="Toggle Music"></button>
+  <button id="btnSfx" onclick="toggleSfx()" title="Toggle SFX"></button>
+  <button id="btnFullscreen" onclick="toggleFullscreen()" title="Toggle Fullscreen">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3H5a2 2 0 00-2 2v3M21 8V5a2 2 0 00-2-2h-3M3 16v3a2 2 0 002 2h3M16 21h3a2 2 0 002-2v-3"/></svg>
   </button>
 </div>
 
-<!-- ── Title ─────────────────────────────────── -->
-<a href="/" id="titleLink"><h1>SNAKE BATTLE</h1></a>
+<!-- ── Title ── -->
+<div id="titleContainer" style="text-align:center; margin-top:20px; margin-bottom:10px;">
+  <a href="/" id="titleLink" style="text-decoration:none;">
+    <h1>
+      SNAKE BATTLE
+      <div id="splashText">New modes available!</div>
+    </h1>
+  </a>
+</div>
+<div id="titleShortcuts" style="text-align:center;">&nbsp;</div>
 
-<!-- ── Status Message ────────────────────────── -->
+<!-- ── Status ── -->
 <div id="statusMsg"></div>
-<button id="cancelMatchBtn" class="btn" onclick="cancelMatchmaking()" style="display:none; margin-top:8px; border-color:var(--red); color:var(--red);">✕ Cancel Search</button>
+<button id="cancelMatchBtn" class="btn" onclick="cancelMatchmaking()" style="display:none;margin-top:8px;border-color:var(--red);color:var(--red);">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+  Cancel Search
+</button>
 
-<!-- ── Menu ───────────────────────────────────── -->
+<!-- ── Menu ── -->
 <div id="menu">
   <input id="nameInput" placeholder="Your name (optional)" maxlength="14" autocomplete="off">
   <div class="input-row">
     <input id="roomInput" placeholder="Room code (to join)" maxlength="6" autocomplete="off"
-           style="text-transform:uppercase; letter-spacing:2px;">
+           style="text-transform:uppercase;letter-spacing:2px;">
   </div>
   <div class="input-row">
-    <select id="gameModeInput" style="padding: 10px; background: rgba(0,229,255,0.05); color: var(--cyan); border: 1px solid rgba(0,229,255,0.3); border-radius: 4px; width: 100%; margin-bottom: 15px; font-family: 'Share Tech Mono', monospace; font-size: 14px; outline: none; cursor: pointer;">
+    <select id="gameModeInput" style="padding:10px;background:rgba(0,229,255,0.05);color:var(--cyan);border:1px solid rgba(0,229,255,0.3);border-radius:4px;width:100%;margin-bottom:6px;font-family:'Share Tech Mono',monospace;font-size:14px;outline:none;cursor:pointer;" onchange="try { updateModeSummary(); } catch(e) {}">
       <option value="normal" style="background:#111">Mode: Normal</option>
       <option value="sudden_death" style="background:#111">Mode: Sudden Death</option>
+      <option value="blitz" style="background:#111">Mode: Blitz</option>
       <option value="last_man" style="background:#111" id="modeLastManOpt">Mode: Last Man Standing (Online)</option>
+      <option value="king_castle" style="background:#111;color:var(--gold)">Mode: King of the Castle (NEW!)</option>
+      <option value="detective" style="background:#111;color:var(--gold)">Mode: Detective Snake (NEW!)</option>
     </select>
   </div>
+  <div id="modeSummary"></div>
   <div id="roomDisplay"></div>
 
   <div class="btn-grid">
@@ -611,31 +392,40 @@ footer {
     </button>
   </div>
 
-  <button class="btn btn-info" id="btnRules" onclick="showRules()">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
-    How to Play
-  </button>
+  <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
+    <button class="btn btn-info" id="btnRules" onclick="showRules()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+      How to Play
+    </button>
+    <button class="btn btn-info btn-gold" onclick="showLeaderboard()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 21h8M12 17v4M7 4h10M4 7h3v2c0 2.2 1.8 4 4 4M20 7h-3v2c0 2.2-1.8 4-4 4M12 17a6 6 0 0 0 6-6V4H6v7a6 6 0 0 0 6 6z"/></svg>
+      Leaderboard
+    </button>
+  </div>
+  
+  <!-- Marquee in title screen -->
+  <div id="marqueeContainer" style="margin-top:10px"><div id="marqueeText">Welcome! Try the new modes and don't forget to share with your friends!</div></div>
 </div>
 
-<!-- ── Game Area ──────────────────────────────── -->
+<!-- ── Game Area ── -->
 <div id="gameArea">
+  <div id="roleInfo"></div>
   <div id="gameStatus"></div>
-  <div id="matchmakingBar" style="display:none; align-items:center; justify-content:center; gap:10px; padding:6px 14px; background:rgba(0,229,255,0.08); border:1px solid rgba(0,229,255,0.25); border-radius:6px; font-size:12px; color:var(--cyan); width:100%; max-width:600px;">
-    <span style="animation:blink 1.2s step-end infinite;">⟳ Matchmaking in progress...</span>
-    <button class="btn" onclick="cancelBackgroundMatchmaking()" style="padding:4px 12px; font-size:11px; border-color:var(--red); color:var(--red);">Cancel</button>
+  <div class="controls-hint" id="gameControlsHint" style="display:none;text-align:center;margin-bottom:8px;"></div>
+  <div id="matchmakingBar" style="display:none;align-items:center;justify-content:center;gap:10px;padding:6px 14px;background:rgba(0,229,255,0.08);border:1px solid rgba(0,229,255,0.25);border-radius:6px;font-size:12px;color:var(--cyan);width:100%;max-width:600px;">
+    <span style="animation:blink 1.2s step-end infinite;">Matchmaking in progress...</span>
+    <button class="btn" onclick="cancelBackgroundMatchmaking()" style="padding:4px 12px;font-size:11px;border-color:var(--red);color:var(--red);">Cancel</button>
   </div>
-  <div id="playerCount" style="display:none; color:#aaa; font-size:12px; text-align:center; margin-top:-4px;"></div>
-  <canvas id="gameCanvas" width="900" height="600"></canvas>
+  <div id="playerCount" style="display:none;color:#aaa;font-size:12px;text-align:center;margin-top:-4px;"></div>
+  <canvas id="gameCanvas" width="1000" height="660"></canvas>
   <div id="playerLegend"></div>
 
-  <!-- PC local controls info -->
   <div id="pcControlsInfo">
     <span class="ctrl-p1">P1 &mdash; WASD</span>
     <span class="ctrl-sep">|</span>
     <span class="ctrl-p2">P2 &mdash; Arrow Keys</span>
   </div>
 
-  <!-- Mobile: single d-pad (online / ai) -->
   <div id="mobileControlsSingle">
     <div class="dpad-wrap">
       <div class="dpad-label lp1">CONTROLS</div>
@@ -653,7 +443,6 @@ footer {
     </div>
   </div>
 
-  <!-- Mobile: dual d-pads (local) -->
   <div id="mobileControlsLocal">
     <div class="dpad-wrap">
       <div class="dpad-label lp1">P1</div>
@@ -684,6 +473,7 @@ footer {
       </div>
     </div>
   </div>
+
   <div id="gameActions">
     <button id="copyCodeBtn" style="display:none" onclick="copyRoomCode()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
@@ -698,119 +488,255 @@ footer {
       Try AI While Waiting
     </button>
     <button id="changeAIDiffBtn" style="display:none" onclick="startAI()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
-      Change Difficulty (<span id="currentAIDiff"></span>)
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15 1.65 1.65 0 003.17 14H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      Difficulty (<span id="currentAIDiff"></span>)
     </button>
     <button id="backBtn" onclick="goBack()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
       Menu
     </button>
+    <button id="inspectBtn" onclick="detectiveInspect()" style="display:none;border-color:#4488ff;color:#4488ff;font-weight:bold;transform:scale(1.1);margin:5px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      Inspect (E)
+    </button>
+    <button id="scanBtn" onclick="detectiveScan()" style="display:none;border-color:#ff4466;color:#ff4466;font-weight:bold;transform:scale(1.1);margin:5px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 12h4M18 12h4M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+      Scan (F)
+    </button>
   </div>
 </div>
 
-<!-- ── Damage Flash Overlay ──────────────────── -->
+<!-- ── Damage Flash ── -->
 <div id="damageFlash"></div>
-
-<!-- ── Toast Container ───────────────────────── -->
 <div id="toastContainer"></div>
 
-<!-- ── AI Difficulty Modal ────────────────────── -->
+<!-- ── AI Difficulty Modal ── -->
 <div class="modal-overlay" id="aiModal" onclick="if(event.target===this)closeAIModal()">
   <div class="modal">
     <h2>SELECT DIFFICULTY</h2>
     <div class="modal-btns">
-      <button class="diff-btn diff-easy"   onclick="startAIWithDiff('easy')">EASY</button>
-      <button class="diff-btn diff-medium" onclick="startAIWithDiff('medium')">MEDIUM</button>
-      <button class="diff-btn diff-hard"   onclick="startAIWithDiff('hard')">HARD</button>
+      <button class="diff-btn diff-easy"       onclick="startAIWithDiff('easy')">EASY</button>
+      <button class="diff-btn diff-medium"     onclick="startAIWithDiff('medium')">MEDIUM</button>
+      <button class="diff-btn diff-hard"       onclick="startAIWithDiff('hard')">HARD</button>
       <button class="diff-btn diff-impossible" onclick="startAIWithDiff('impossible')">IMPOSSIBLE</button>
       <button class="diff-btn" onclick="closeAIModal()" style="border-color:#555;color:#666;margin-top:4px">CANCEL</button>
     </div>
   </div>
 </div>
 
-<!-- ── Rules Modal ───────────────────────────── -->
-<div class="modal-overlay" id="rulesModal" onclick="if(event.target===this)this.style.display='none'">
-  <div class="modal modal-wide">
-    <h2>HOW TO PLAY</h2>
-    <div class="rules-section">
-      <h3>CONTROLS</h3>
-      <p><strong>PC:</strong> WASD (Player 1) / Arrow Keys (Player 2)</p>
-      <p><strong>Mobile:</strong> On-screen D-pad</p>
+<!-- ── Rules Modal ── -->
+<div class="modal-overlay" id="rulesModal" onclick="if(event.target===this)closeRules()">
+  <div class="modal modal-wide" style="position:relative">
+    <button onclick="closeRules()" style="position:absolute;top:10px;right:10px;background:none;border:none;color:#555;cursor:pointer;font-size:18px;font-weight:bold">&times;</button>
+    <h2 style="font-size:1.4em;letter-spacing:4px;margin-bottom:12px;display:flex;align-items:center;justify-content:center;gap:10px">
+      HOW TO PLAY
+    </h2>
+    <p style="color:#666;font-size:12px;text-align:center;margin-bottom:18px;font-style:italic">Welcome to Snake Battle by Harshit Rawat</p>
+
+    <div id="rulesPage1">
+      <div class="rules-section">
+        <h3>CONTROLS</h3>
+        <p><strong>PC:</strong> WASD (Player 1) / Arrow Keys (Player 2)</p>
+        <p><strong>Mobile:</strong> On-screen D-pad</p>
+      </div>
+      <div class="rules-section">
+        <h3>GAME MODES</h3>
+        <p><strong>Play Online</strong> &mdash; Auto-match with a random opponent (same mode)</p>
+        <p><strong>vs AI</strong> &mdash; Battle the computer (Easy / Medium / Hard / Impossible)</p>
+        <p><strong>Create Room</strong> &mdash; Private room with a 6-letter code to share</p>
+        <p><strong>Join Room</strong> &mdash; Enter a friend's code. Supports up to 4 players!</p>
+        <p><strong>Play Local</strong> &mdash; Two players on one device</p>
+      </div>
+      <div class="rules-section">
+        <h3>SCORING</h3>
+        <p>Each player starts with <strong>30 points</strong> and length 3.</p>
+        <p>Eat food: <strong>+10 pts, +1 length</strong></p>
+        <p>Bite self or opponent: <strong>-10 pts, -1 length</strong> to the bitten snake</p>
+        <p>Head-on collision: <strong>both</strong> snakes take damage</p>
+        <p>A snake is <strong>eliminated</strong> when score hits 0. Last snake wins. Simultaneous = <strong>DRAW</strong>.</p>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:16px">
+        <button class="diff-btn" onclick="closeRules()" style="flex:1;border-color:#555;color:#888">CLOSE</button>
+        <button class="diff-btn diff-easy" onclick="setRulesPage(2)" style="flex:1">NEXT &rarr;</button>
+      </div>
     </div>
-    <div class="rules-section">
-      <h3>GAME MODES</h3>
-      <p><strong>Play Online</strong> &mdash; Auto-match with a random opponent</p>
-      <p><strong>vs AI</strong> &mdash; Battle the computer (3 difficulties)</p>
-      <p><strong>Create Room</strong> &mdash; Start a private room &amp; share the code</p>
-      <p><strong>Join Room</strong> &mdash; Enter a friend's room code to join</p>
-      <p><strong>Play Local</strong> &mdash; Two players on the same device</p>
+
+    <div id="rulesPage2" style="display:none">
+      <div class="rules-section sd">
+        <h3>SUDDEN DEATH</h3>
+        <p>After <strong>10 seconds</strong>, red walls begin closing in from all sides. Touch the walls and you take damage. The safe zone shrinks every 8 seconds. Food never spawns in the danger zone.</p>
+      </div>
+      <div class="rules-section blitz">
+        <h3>BLITZ MODE</h3>
+        <p>All snakes start at normal speed. Every <strong>10 seconds</strong>, movement speed increases for everyone. Up to 6 speed levels. Survive the chaos!</p>
+      </div>
+      <div class="rules-section pu">
+        <h3>POWER-UPS</h3>
+        <p style="margin-bottom:8px">Colored glowing items appear on the board every ~15s. Eat them to gain a <strong>10-second effect</strong>:</p>
+        <div class="pu-row">
+          <span class="pu-badge" style="color:#ffcc00;border-color:#ffcc00">GHST</span>
+          <p style="margin:0"><strong style="color:#ffcc00">Invisibility</strong> &mdash; Pass through players and red walls (can't eat food)</p>
+        </div>
+        <div class="pu-row">
+          <span class="pu-badge" style="color:#00e5ff;border-color:#00e5ff">SHD</span>
+          <p style="margin:0"><strong style="color:#00e5ff">Shield</strong> &mdash; Blocks the next hit entirely</p>
+        </div>
+        <div class="pu-row">
+          <span class="pu-badge" style="color:#ff4466;border-color:#ff4466">2D</span>
+          <p style="margin:0"><strong style="color:#ff4466">Double Damage</strong> &mdash; Your bites deal 20 pts instead of 10</p>
+        </div>
+        <div class="pu-row">
+          <span class="pu-badge" style="color:#00ff88;border-color:#00ff88">2P</span>
+          <p style="margin:0"><strong style="color:#00ff88">Double Points</strong> &mdash; Food gives you 20 pts instead of 10</p>
+        </div>
+        <div class="pu-row">
+          <span class="pu-badge" style="color:#ff8800;border-color:#ff8800">SPD</span>
+          <p style="margin:0"><strong style="color:#ff8800">Speed Boost</strong> &mdash; Move 2x faster for 10 seconds</p>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:16px">
+        <button class="diff-btn diff-easy" onclick="setRulesPage(1)" style="flex:1">&larr; PREV</button>
+        <button class="diff-btn diff-easy" onclick="setRulesPage(3)" style="flex:1">NEXT &rarr;</button>
+      </div>
     </div>
-    <div class="rules-section">
-      <h3>SCORING</h3>
-      <p>Each player starts with <strong>30 points</strong> and length 3.</p>
-      <p>Eat food pellets: <strong>+10 points, +1 length</strong></p>
-      <p>Bite self or opponent: <strong>-10 points, -1 length</strong> to bitten snake</p>
-      <p>Head-on collision: <strong>both</strong> snakes take damage</p>
+
+    <div id="rulesPage3" style="display:none">
+      <div class="rules-section" style="border-color:rgba(255,204,0,0.5)">
+        <h3>
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" style="width:18px;height:18px;margin-bottom:-3px"><path d="M22 13V6l-4 4-4-4-4 4-4-4v7L22 13z"/><path d="M5 21l1-8h12l1 8H5z"/></svg> 
+          KING OF THE CASTLE
+        </h3>
+        <p>A crown spawns at the center. First player to reach it picks it up!</p>
+        <p><strong>Crowned player</strong> moves 1.5x fast. If any player runs into the King (head or body), the <strong>crown transfers</strong>.</p>
+        <p>Timer-based: <strong>1:00 / 1:30 / 2:00</strong>. Winner = player who held the crown longest.</p>
+        <p>No food. No Double Damage/Points. Only <strong>Ghost</strong> and <strong>Speed Up</strong> power-ups (King consumes them on touch).</p>
+        <p><strong>Available in:</strong> Online & Local modes only.</p>
+      </div>
+      <div class="rules-section" style="border-color:rgba(68,136,255,0.5)">
+        <h3>
+          <svg viewBox="0 0 24 24" fill="none" stroke="#4488ff" stroke-width="2" style="width:18px;height:18px;margin-bottom:-3px"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg> 
+          DETECTIVE SNAKE
+        </h3>
+        <p>One player is the <strong>Detective</strong> (blue hat). Others are <strong>Imposters</strong> disguised as NPC snakes.</p>
+        <p><strong>Detective:</strong> Press <strong>E</strong> near a snake to inspect. Press <strong>F</strong> to scan (3 charges).</p>
+        <p><strong>Imposters:</strong> Eat food for +1 pt. Use <strong>F</strong> to <strong>TELEPORT</strong> (2 charges) to escape! A flash will warn the detective.</p>
+        <p>Timer: <strong>1 / 2 / 3 min</strong>. Detective wins if all caught. Highest-scoring imposter wins if time runs out.</p>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:16px">
+        <button class="diff-btn diff-easy" onclick="setRulesPage(2)" style="flex:1">&larr; PREV</button>
+        <button class="diff-btn diff-easy" onclick="setRulesPage(4)" style="flex:1">NEXT &rarr;</button>
+      </div>
     </div>
-    <div class="rules-section">
-      <h3>WIN / LOSE</h3>
-      <p>A snake is <strong>eliminated</strong> when its score drops to 0 or below.</p>
-      <p>Last snake standing <strong>wins</strong>.</p>
-      <p>If both/all are eliminated simultaneously: <strong>DRAW</strong>.</p>
+
+    <div id="rulesPage4" style="display:none">
+      <div class="rules-section" style="border-color:rgba(0,229,255,0.4)">
+        <h3>
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2" style="width:18px;height:18px;margin-bottom:-3px"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15 1.65 1.65 0 003.17 14H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg> 
+          TIPS
+        </h3>
+        <p>Use <strong>swipe controls</strong> on mobile in fullscreen mode for quick inputs.</p>
+        <p>Power-ups can turn the tide — pick them up strategically!</p>
+        <p>In <strong>Blitz</strong> mode, survival matters more than score as speed ramps up.</p>
+        <p>In <strong>King of the Castle</strong>, Ghost mode lets you pass through the crowned player without taking the crown.</p>
+      </div>
+      <div style="text-align:center;padding:20px 0">
+        <p style="color:var(--cyan);font-family:'Orbitron',sans-serif;font-size:1.2em;letter-spacing:2px">Enjoy!</p>
+        <p style="color:#666;font-size:11px;margin-top:8px">Snake Battle by Harshit Rawat</p>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:16px">
+        <button class="diff-btn diff-easy" onclick="setRulesPage(3)" style="flex:1">&larr; PREV</button>
+        <button class="diff-btn" onclick="closeRules()" style="flex:1;border-color:#555;color:#888">CLOSE</button>
+      </div>
     </div>
-    <div class="rules-section" style="border-color:var(--gold)">
-      <h3>GAME MODES</h3>
-      <p><strong>Sudden Death:</strong> Walls start shrinking after 10 seconds. Touching them deals damage!</p>
-      <p><strong>Last Man Standing:</strong> Online only (3-4 players). No points for biting—just survive the chaos until only one remains.</p>
-    </div>
-    <button class="diff-btn diff-easy" onclick="closeRules()" style="margin-top:12px;width:100%">GOT IT</button>
+
   </div>
 </div>
 
-<!-- ── Contact Footer ────────────────────────── -->
+<!-- ── Leaderboard Modal ── -->
+<div class="modal-overlay" id="lbModal" onclick="if(event.target===this)closeLeaderboard()">
+  <div class="modal modal-wide" id="lbModal">
+    <h2>LEADERBOARD</h2>
+    <div class="lb-tabs">
+      <button class="lb-tab active" id="lbTabOnline" onclick="loadLbTab('online')">Online</button>
+      <button class="lb-tab" id="lbTabAI" onclick="loadLbTab('ai_impossible')">AI Impossible</button>
+    </div>
+    <table class="lb-table">
+      <thead><tr><th>#</th><th>Player</th><th>Score</th></tr></thead>
+      <tbody id="lbBody">
+        <tr><td colspan="3" style="text-align:center;color:#555;padding:12px">Loading...</td></tr>
+      </tbody>
+    </table>
+    <button class="diff-btn" onclick="closeLeaderboard()" style="margin-top:16px;width:100%;border-color:#555;color:#888">CLOSE</button>
+  </div>
+</div>
+
+<!-- ── Impossible Win — Name Entry Modal ── -->
+<div class="modal-overlay" id="lbNameModal" onclick="if(event.target===this)closeImpossibleModal()">
+  <div class="modal">
+    <h2>YOU BEAT IMPOSSIBLE!</h2>
+    <p id="lbNameScore" style="color:var(--gold);font-size:13px;margin-bottom:6px;text-align:center"></p>
+    <p style="color:#888;font-size:12px;margin-bottom:4px">Enter your name for the leaderboard:</p>
+    <input id="lbNameInput" placeholder="Your name" maxlength="14" autocomplete="off" onkeydown="if(event.key==='Enter')submitImpossibleScore()">
+    <div style="display:flex;gap:8px;margin-top:4px">
+      <button class="diff-btn diff-easy" onclick="submitImpossibleScore()" style="flex:1">SAVE SCORE</button>
+      <button class="diff-btn" onclick="closeImpossibleModal()" style="flex:1;border-color:#555;color:#666">SKIP</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Contact Footer ── -->
 <div id="contactFooter">
-  <!-- Email -->
-  <a href="mailto:harshitrawat3125@gmail.com" title="Email">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 7l-10 7L2 7"/>
-    </svg>
+  <a href="mailto:harshitrawat3125@gmail.com" target="_self" rel="noreferrer" title="Email">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 7l-10 7L2 7"/></svg>
   </a>
-  <!-- GitHub -->
   <a href="https://github.com/ROGHET" target="_blank" rel="noopener" title="GitHub">
-    <svg viewBox="0 0 24 24" fill="currentColor">
-      <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.21 11.39.6.11.79-.26.79-.58v-2.23c-3.34.73-4.03-1.42-4.03-1.42-.55-1.39-1.33-1.76-1.33-1.76-1.09-.74.08-.73.08-.73 1.2.08 1.84 1.24 1.84 1.24 1.07 1.83 2.81 1.3 3.49 1 .11-.78.42-1.3.76-1.6-2.67-.31-5.47-1.34-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.13-.3-.54-1.52.12-3.18 0 0 1.01-.32 3.3 1.23.96-.27 1.98-.4 3-.4s2.05.13 3.01.4c2.29-1.55 3.3-1.23 3.3-1.23.65 1.65.24 2.87.12 3.18.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.62-5.48 5.92.43.37.82 1.1.82 2.22v3.29c0 .32.19.69.8.58C20.57 21.8 24 17.3 24 12c0-6.63-5.37-12-12-12z"/>
-    </svg>
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.21 11.39.6.11.79-.26.79-.58v-2.23c-3.34.73-4.03-1.42-4.03-1.42-.55-1.39-1.33-1.76-1.33-1.76-1.09-.74.08-.73.08-.73 1.2.08 1.84 1.24 1.84 1.24 1.07 1.83 2.81 1.3 3.49 1 .11-.78.42-1.3.76-1.6-2.67-.31-5.47-1.34-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.13-.3-.54-1.52.12-3.18 0 0 1.01-.32 3.3 1.23.96-.27 1.98-.4 3-.4s2.05.13 3.01.4c2.29-1.55 3.3-1.23 3.3-1.23.65 1.65.24 2.87.12 3.18.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.62-5.48 5.92.43.37.82 1.1.82 2.22v3.29c0 .32.19.69.8.58C20.57 21.8 24 17.3 24 12c0-6.63-5.37-12-12-12z"/></svg>
   </a>
-  <!-- LinkedIn -->
   <a href="https://www.linkedin.com/in/harshit-rawat-956850298/" target="_blank" rel="noopener" title="LinkedIn">
-    <svg viewBox="0 0 24 24" fill="currentColor">
-      <path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 11-.01-4.13 2.06 2.06 0 01.01 4.13zm1.78 13.02H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/>
-    </svg>
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 11-.01-4.13 2.06 2.06 0 01.01 4.13zm1.78 13.02H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/></svg>
   </a>
-  <!-- Bug Report -->
   <a href="javascript:void(0)" onclick="showBugReport()" ontouchend="event.preventDefault();showBugReport()" title="Report Bug">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M8 2l1.88 1.88M16 2l-1.88 1.88"/><path d="M9 7.13v-1a3 3 0 116 0v1"/><path d="M12 20a6 6 0 006-6v-3a4 4 0 00-4-4h-4a4 4 0 00-4 4v3a6 6 0 006 6z"/><path d="M12 20v-9"/><path d="M6.53 9A3.5 3.5 0 003 5M6 13H2M3.8 17A4 4 0 003 21M17.47 9A3.5 3.5 0 0021 5M18 13h4M20.2 17a4 4 0 01.8 4"/>
-    </svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2l1.88 1.88M16 2l-1.88 1.88"/><path d="M9 7.13v-1a3 3 0 116 0v1"/><path d="M12 20a6 6 0 006-6v-3a4 4 0 00-4-4h-4a4 4 0 00-4 4v3a6 6 0 006 6z"/><path d="M12 20v-9M6.53 9A3.5 3.5 0 003 5M6 13H2M3.8 17A4 4 0 003 21M17.47 9A3.5 3.5 0 0121 5M18 13h4M20.2 17a4 4 0 01.8 4"/></svg>
   </a>
 </div>
 
+<!-- ── Timer Modal (King/Detective) ── -->
+<div class="modal-overlay" id="timerModal" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+  <div class="modal">
+    <h2 id="timerModalTitle" style="font-size:1.2em;margin-bottom:12px">SELECT TIMER</h2>
+    <p style="color:#888;font-size:12px;margin-bottom:16px;text-align:center">Choose the match duration:</p>
+    <div id="timerModalBtns" style="display:flex;flex-direction:column;gap:8px"></div>
+  </div>
+</div>
 
-<!-- ── Bug Report Modal ──────────────────────── -->
+<!-- ── Bug Report Modal ── -->
 <div class="modal-overlay" id="bugModal" onclick="if(event.target===this)this.style.display='none'">
   <div class="modal modal-wide">
     <h2>REPORT A BUG</h2>
-    <p style="color:#888;font-size:12px;margin-bottom:12px">Describe the issue you encountered. Your report will be sent via email.</p>
+    <p style="color:#888;font-size:12px;margin-bottom:12px">Describe the issue. Report sent via email.</p>
     <textarea id="bugText" placeholder="Describe the bug here..."></textarea>
     <div style="display:flex;gap:8px">
-      <button class="diff-btn diff-easy" onclick="sendBugReport()" style="flex:1">SEND REPORT</button>
+      <button class="diff-btn diff-easy" onclick="sendBugReport(event)" style="flex:1">SEND REPORT</button>
       <button class="diff-btn" onclick="closeBugReport()" style="flex:1;border-color:#555;color:#888">CANCEL</button>
     </div>
   </div>
 </div>
 
-<footer>By Harshit Rawat</footer>
+  <div style="text-align:center;margin-bottom:12px">
+    <button id="btnRulesInGame" class="btn btn-green" onclick="showRules()" style="font-size:11px;padding:4px 10px;display:inline-flex;align-items:center;gap:6px;background:rgba(0,255,136,0.05);border-color:rgba(0,255,136,0.5);color:#00ff88;cursor:pointer">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+      HOW TO PLAY GUIDE
+    </button>
+    <div id="rulesMarquee" style="width:250px;max-width:90vw;overflow:hidden;margin:4px auto;display:none;border-bottom:1px solid rgba(0,255,136,0.2)">
+       <div id="rulesMarqueeText" style="white-space:nowrap;display:inline-block;animation:marquee-fast 7s linear infinite;color:#00ff88;font-size:10px;font-weight:bold;letter-spacing:1px">Project by Harshit Rawat</div>
+    </div>
+  </div>
+  <style>
+    @keyframes marquee-fast { 0%{transform:translateX(100%)} 100%{transform:translateX(-100%)} }
+  </style>
+  <footer>By Harshit Rawat</footer>
 
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 <script src="game.js"></script>
